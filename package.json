@@ -18,6 +18,10 @@
       "title": "Hello World"
     },
     {
+      "command": "nestingTracker.showLevels",
+      "title": "Calculate Nesting Levels"
+    },
+    {
       "command": "extension.highlightLine",
       "title": "Highlight Line in Current File"
     }
