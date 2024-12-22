@@ -5,14 +5,18 @@ from pycparser import c_parser, c_ast
 
 
 def calculate_cognitive_complexity(code):
+    """Main function to compute the cognitive complexity of a C code."""
+
     class CognitiveComplexityVisitor(c_ast.NodeVisitor):
         def __init__(self):
-            self.current_level = 0
-            self.OperatorList = ["&&","||"]
-            self.line_complexities = {}
-            self.line_operators = {}
-            self.else_count = 0
+            self.current_level = 0#Tracking current nesting level
+            self.OperatorList = ["&&","||"]#Logical operators that increase complexity
+            self.line_complexities = {}#To store the complexities of each pertinent line
+            self.line_operators = {}#To store the logical operators for processing
+            self.else_count = 0#To store the else count
         def visit_BinaryOp(self,node):
+            """Visit BinaryOp nodes to analyze logical operators"""
+            
             if node.left:
                 self.visit(node.left)
             
@@ -26,12 +30,14 @@ def calculate_cognitive_complexity(code):
                 self.visit(node.right)
                 
         def visit_Switch(self,node):
+            """Visit Switch nodes to handle case statements"""
             casecount = len((node.stmt.block_items))
             self.generic_visit(node)    
 
         def visit_If(self, node):
-            # Increment complexity for 'if'
+            """Visit if nodes to increment complexity for if,else if and else."""
 
+            # Increment complexity for 'if'
             self._increase_complexity(node, "if")
 
             # Visit the condition
@@ -63,34 +69,41 @@ def calculate_cognitive_complexity(code):
                     self.current_level -= 1
 
         def visit_For(self, node):
+            """Visit nodes to increment complexity regarding for loops."""
             self._increase_complexity(node, "for")
             self.current_level += 1
             self.generic_visit(node)
             self.current_level -= 1
 
         def visit_While(self, node):
-            
+            """Visit nodes to increment complexity regarding while loops."""
             self._increase_complexity(node, "while")
             self.current_level += 1
             self.generic_visit(node)
             self.current_level -= 1
 
         def visit_DoWhile(self, node):
+            """Visit nodes to increment complexity regarding do-while loops."""
             self._increase_complexity(node, "do-while")
             self.current_level += 1
             self.generic_visit(node)
             self.current_level -= 1
 
         def visit_Return(self, node):
-            self._increment_line_complexity(node.coord.line, 1)
+            """Visit nodes to increment complexity regarding recursive functions."""
+            self._increment_line_complexity(node.coord.line, 0)
+            #to be implemented
 
         def visit_Break(self, node):
+            """Visit nodes to increment complexity regarding breaks."""
             self._increment_line_complexity(node.coord.line, 1)
 
         def visit_Continue(self, node):
+            """Visit nodes to increment complexity regarding continue statements."""
             self._increment_line_complexity(node.coord.line, 1)
 
         def _increase_complexity(self, node, construct_type):
+            """Helper function to increase the complexity."""
 
             if node.coord: 
                 self._increment_line_complexity(node.coord.line, self.current_level + 1)
@@ -98,18 +111,21 @@ def calculate_cognitive_complexity(code):
            
 
         def _increment_line_complexity(self, line, value):
+            """Helper function to set the complexity of a line."""
             if line in self.line_complexities:
                 self.line_complexities[line] = value
             else:
                 self.line_complexities[line] = value
         def calculate_Logical_Expression(self):
+            """Calculate the number of and's, or's as well as their respective changes in the code."""
             keys = self.line_operators.keys()
             
             for key in keys:
                 changes = 0
-                totalAndCount = len([x for x in self.line_operators[key] if x == '&&'])
-                totalOrCount = len([x for x in self.line_operators[key] if x == '||'])
-                for i in range(0,len(self.line_operators[key]) - 1):
+                
+                totalAndCount = len([x for x in self.line_operators[key] if x == '&&']) #Measuring the number of and's in the line operators.
+                totalOrCount = len([x for x in self.line_operators[key] if x == '||']) #Measuring the number of or's in the line operators.
+                for i in range(0,len(self.line_operators[key]) - 1): #Comparing the logical with its subsequent one to calculate the changes.
                     if self.line_operators[key][i] != self.line_operators[key][i+1]:
                             changes = changes + 1
                 
@@ -118,10 +134,10 @@ def calculate_cognitive_complexity(code):
                 
 
     parser = c_parser.CParser()
-    ast = parser.parse(code)
+    ast = parser.parse(code)  # ast stands for abstract syntax tree, our structure of choice for parsing the code.
     visitor = CognitiveComplexityVisitor()
-    visitor.visit(ast)
-    visitor.calculate_Logical_Expression()
+    visitor.visit(ast) # Visiting the ast.
+    visitor.calculate_Logical_Expression() # Calculating certain logical expression details. (# of and's, or's and their change counts.)
     return visitor.line_complexities
 
 
