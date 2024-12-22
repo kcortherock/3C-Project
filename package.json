@@ -13,13 +13,14 @@
   "main": "./extension.js",
   "contributes": {
     "commands": [
-      {
-      "command": "toolbox.helloWorld",
-      "title": "Hello World"
-    },
+      
     {
       "command": "nestingTracker.showLevels",
       "title": "Calculate Nesting Levels"
+    },
+    {
+      "command": "extension.totalComplexity",
+      "title": "Get Total Complexity Score of file"
     },
     {
       "command": "extension.highlightLine",
