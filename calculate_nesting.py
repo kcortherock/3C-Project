@@ -118,21 +118,35 @@ def calculate_cognitive_complexity(code):
                 self.line_complexities[line] = value
         def calculate_Logical_Expression(self):
             """Calculate the number of and's, or's as well as their respective changes in the code."""
+            self.count_AND()
+            self.count_OR()
+            self.count_changes()   
+                
+        def count_AND(self):
+            """Measuring the number of and's in the line operators."""
             keys = self.line_operators.keys()
-            
             for key in keys:
-                changes = 0
-                
-                totalAndCount = len([x for x in self.line_operators[key] if x == '&&']) #Measuring the number of and's in the line operators.
-                totalOrCount = len([x for x in self.line_operators[key] if x == '||']) #Measuring the number of or's in the line operators.
-                for i in range(0,len(self.line_operators[key]) - 1): #Comparing the logical with its subsequent one to calculate the changes.
-                    if self.line_operators[key][i] != self.line_operators[key][i+1]:
-                            changes = changes + 1
-                
-                
-                self._increment_line_complexity(key,changes+1)    
+                totalAndCount = len([x for x in self.line_operators[key] if x == '&&'])
                 
 
+        def count_OR(self):
+            """Measuring the number of or's in the line operators."""
+            keys = self.line_operators.keys()
+            for key in keys:
+                totalOrCount = len([x for x in self.line_operators[key] if x == '||'])
+                
+
+        def count_changes(self):
+            """Comparing the logical with its subsequent one to calculate the changes."""
+            keys = self.line_operators.keys()
+            for key in keys:
+                changes = 0
+                for i in range(0,len(self.line_operators[key]) - 1):
+                    if self.line_operators[key][i] != self.line_operators[key][i+1]:
+                            changes = changes + 1
+                self._increment_line_complexity(key,changes+1) 
+
+                
     parser = c_parser.CParser()
     ast = parser.parse(code)  # ast stands for abstract syntax tree, our structure of choice for parsing the code.
     visitor = CognitiveComplexityVisitor()
