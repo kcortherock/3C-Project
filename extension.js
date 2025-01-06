@@ -67,7 +67,7 @@ pythonProcess.stderr.on('data', (data) => {
     if (code === 0) {
       try {
         complexityLevels = JSON.parse(output);
-        updateDecorations(editor); // Apply your decorations
+        updateDecorations(editor); // Apply our decorations
       } catch (err) {
         console.error(`Error parsing Python output: ${err.message}`);
       }
@@ -77,7 +77,7 @@ pythonProcess.stderr.on('data', (data) => {
   });
 });
 
-  // Adds a command to display the cognitive complexity scores in a list
+  // Adds a command to display the cognitive complexity scores in our list
   const disposable2 = vscode.commands.registerCommand('nestingTracker.showLevels', () => {
     if (Object.keys(complexityLevels).length === 0) {
       vscode.window.showInformationMessage('No complexity scores to display.');
@@ -146,6 +146,7 @@ function updateDecorations(editor) {
 }
 
 	const highlightLineCommand  = vscode.commands.registerCommand('extension.highlightLine', async () => {
+    // testing function for highlighting a specific line
         const editor = vscode.window.activeTextEditor;
 
         if (complexityLevels ) {

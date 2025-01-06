@@ -16,7 +16,7 @@
       
     {
       "command": "nestingTracker.showLevels",
-      "title": "Calculate Nesting Levels"
+      "title": "Calculate Complexity Levels"
     },
     {
       "command": "extension.totalComplexity",

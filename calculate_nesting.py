@@ -20,7 +20,7 @@ def calculate_cognitive_complexity(code):
             if node.left:
                 self.visit(node.left)
             
-            if node.op in self.OperatorList:  # Check if it's a logical operator
+            if node.op in self.OperatorList:  # Check if it's a logical operator of our choice
                 if node.coord.line in self.line_operators:
                     self.line_operators[node.coord.line].append(node.op)
                 else:
@@ -32,6 +32,7 @@ def calculate_cognitive_complexity(code):
         def visit_Switch(self,node):
             """Visit Switch nodes to handle case statements"""
             casecount = len((node.stmt.block_items))
+            #to be implemented
             self.generic_visit(node)    
 
         def visit_If(self, node):
@@ -96,7 +97,7 @@ def calculate_cognitive_complexity(code):
 
         def visit_Break(self, node):
             """Visit nodes to increment complexity regarding breaks."""
-            self._increment_line_complexity(node.coord.line, 1)
+            self._increment_line_complexity(node.coord.line, 0)
 
         def visit_Continue(self, node):
             """Visit nodes to increment complexity regarding continue statements."""
@@ -144,9 +145,9 @@ def calculate_cognitive_complexity(code):
                 for i in range(0,len(self.line_operators[key]) - 1):
                     if self.line_operators[key][i] != self.line_operators[key][i+1]:
                             changes = changes + 1
-                self._increment_line_complexity(key,changes+1) 
+                self._increment_line_complexity(key,self.line_complexities[key] + changes + 1) 
 
-                
+
     parser = c_parser.CParser()
     ast = parser.parse(code)  # ast stands for abstract syntax tree, our structure of choice for parsing the code.
     visitor = CognitiveComplexityVisitor()
@@ -163,8 +164,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     try:
-        preprocessed_code = code
-        complexities = calculate_cognitive_complexity(preprocessed_code)
+       
+        complexities = calculate_cognitive_complexity(code)
         print(json.dumps(complexities))
     except Exception as e:
         print(json.dumps({"error": f"Error processing code: {e}"}))
