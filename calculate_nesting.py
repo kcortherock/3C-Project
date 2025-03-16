@@ -1,6 +1,9 @@
 import sys
 import json
 from pycparser import c_parser, c_ast
+import re
+from preprocesser_C_code import *
+
 
 
 
@@ -14,6 +17,15 @@ def calculate_cognitive_complexity(code):
             self.line_complexities = {}#To store the complexities of each pertinent line
             self.line_operators = {}#To store the logical operators for processing
             self.else_count = 0#To store the else count
+
+            self.previous_nestingType = "Nothing"
+        
+        def increment_nestingLevel(self,type):
+            self.current_level = self.current_level + 1
+        def decrement_nestingLevel(self,type):
+            self.current_level = self.current_level - 1
+
+
         def visit_BinaryOp(self,node):
             """Visit BinaryOp nodes to analyze logical operators"""
             
@@ -128,6 +140,7 @@ def calculate_cognitive_complexity(code):
             keys = self.line_operators.keys()
             for key in keys:
                 totalAndCount = len([x for x in self.line_operators[key] if x == '&&'])
+                self._increment_line_complexity(key,self.line_complexities[key] + totalAndCount)
                 
 
         def count_OR(self):
@@ -135,7 +148,7 @@ def calculate_cognitive_complexity(code):
             keys = self.line_operators.keys()
             for key in keys:
                 totalOrCount = len([x for x in self.line_operators[key] if x == '||'])
-                
+                self._increment_line_complexity(key,self.line_complexities[key] + totalOrCount)   
 
         def count_changes(self):
             """Comparing the logical with its subsequent one to calculate the changes."""
@@ -159,6 +172,7 @@ def calculate_cognitive_complexity(code):
 if __name__ == "__main__":
     code = sys.stdin.read()
     
+    code = remove_preprocessor_directives(code)
     if not code.strip():
         print(json.dumps({"error": "No code provided"}))
         sys.exit(1)
