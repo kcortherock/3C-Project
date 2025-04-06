@@ -25,6 +25,10 @@
     {
       "command": "extension.highlightLine",
       "title": "Highlight Line in Current File"
+    },
+    {
+      "command": "extension.toggleHighlighting",
+      "title": "Toggle Highlighting"
     }
   ]
   },

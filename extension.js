@@ -5,6 +5,7 @@ const { exec } = require('child_process');
 const path = require('path');
 const { spawn } = require('child_process');
 
+let isHighlightingEnabled = true;
 let complexityLevels = {}; // Store the current cognitive complexity score of each line
 
 
@@ -90,6 +91,7 @@ pythonProcess.stderr.on('data', (data) => {
 
 function updateDecorations(editor) {
   //clear all the colors before updating
+  if(isHighlightingEnabled){
   if(decorationType1)
     decorationType1.dispose();
   if(decorationType2)
@@ -144,6 +146,7 @@ function updateDecorations(editor) {
   editor.setDecorations(decorationType3, highComplexityLines3);
   editor.setDecorations(decorationType4, highComplexityLines4);
 }
+}
 
 	const highlightLineCommand  = vscode.commands.registerCommand('extension.highlightLine', async () => {
     // testing function for highlighting a specific line
@@ -194,10 +197,25 @@ function updateDecorations(editor) {
               vscode.window.showInformationMessage("No Complexity.");
           }
     });
+    const toggleHighlighting = vscode.commands.registerCommand('extension.toggleHighlighting', function () {
     
+      if(isHighlightingEnabled){
+        if(decorationType1)
+          decorationType1.dispose();
+        if(decorationType2)
+          decorationType2.dispose();
+        if(decorationType3)
+          decorationType3.dispose();
+        if(decorationType4)
+          decorationType4.dispose();
+        }
+        isHighlightingEnabled = !isHighlightingEnabled;
+
+    });
     context.subscriptions.push(disposable2);
 	  context.subscriptions.push(highlightLineCommand);
     context.subscriptions.push(getTotalComplexityFile);
+    context.subscriptions.push(toggleHighlighting);
   }
 
 // This method is called when your extension is deactivated
