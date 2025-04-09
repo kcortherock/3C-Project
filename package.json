@@ -3,6 +3,7 @@
   "displayName": "toolbox",
   "description": "Awesomeness",
   "version": "0.0.1",
+  "publisher": "myusername",
   "engines": {
     "vscode": "^1.94.2"
   },
@@ -29,6 +30,10 @@
     {
       "command": "extension.toggleHighlighting",
       "title": "Toggle Highlighting"
+    },
+    {
+      "command": "extension.openMenu",
+      "title": "Customization Menu"
     }
   ]
   },

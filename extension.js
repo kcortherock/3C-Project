@@ -212,10 +212,295 @@ function updateDecorations(editor) {
         isHighlightingEnabled = !isHighlightingEnabled;
 
     });
+    
+    //---------------------------------Customization Menu----------------------------------------------------------------
+    const openMenu = vscode.commands.registerCommand('extension.openMenu', () => {
+      const panel = vscode.window.createWebviewPanel(
+        'formPanel',
+        'Send Info Form',
+        vscode.ViewColumn.One,
+        { enableScripts: true }
+      );
+  
+      panel.webview.html = getWebviewContent();
+  
+      panel.webview.onDidReceiveMessage(message => {
+        if (message.command === 'submit') {
+          vscode.window.showInformationMessage(`Received: ${message.text}`);
+        }
+      });
+    });
+
+    function getWebviewContent() {
+      return `
+        <!DOCTYPE html>
+        <html lang="en">
+
+        <style>
+          table {
+            width: 60%;
+            border-collapse: collapse;
+            border: 1px solid;
+            margin: 20px 0;
+          }
+          th, td {
+            border: 1px solid;
+          }
+          h1{
+            text-align: center;
+          }
+          .table1{
+            text-align: center;
+          }
+          #notification {
+            display: none;
+            color: white;
+            padding: 10px;
+            background-color: red;
+            text-align: center;
+          }
+        </style>
+
+        <body>
+          <div id="notification"></div>
+          <h1>Overall Complexity Score & Color Customization</h1>
+          <li>You can select a color for a specific overall score according to your preferences.</li>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Score that is bigger than</th>
+                <th>Color</th>
+              </tr>
+              <tr>
+                <td class="table1"><input type="number" name="score1" class="allScoreTable1" placeholder="Enter score" value="8" min="0"></td>
+                <td class="table1">
+                  <select name="color1">
+                    <option value="Red" selected>Red</option>
+                    <option value="Green">Green</option>
+                    <option value="Blue">Blue</option>
+                    <option value="Yellow">Yellow</option>
+                    <option value="Orange">Orange</option>
+                    <option value="Purple">Purple</option>
+                    <option value="Cyan">Cyan</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="table1"><input type="number" name="score2" class="allScoreTable1" placeholder="Enter score" value="5" min="0"></td>
+                <td class="table1">
+                  <select name="color2">
+                    <option value="Red">Red</option>
+                    <option value="Green" selected>Green</option>
+                    <option value="Blue">Blue</option>
+                    <option value="Yellow">Yellow</option>
+                    <option value="Orange">Orange</option>
+                    <option value="Purple">Purple</option>
+                    <option value="Cyan">Cyan</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="table1"><input type="number" name="score3" class="allScoreTable1" placeholder="Enter score" value="3" min="0"></td>
+                <td class="table1">
+                  <select name="color3">
+                    <option value="Red">Red</option>
+                    <option value="Green">Green</option>
+                    <option value="Blue" selected>Blue</option>
+                    <option value="Yellow">Yellow</option>
+                    <option value="Orange">Orange</option>
+                    <option value="Purple">Purple</option>
+                    <option value="Cyan">Cyan</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td class="table1"><input type="number" name="score4" class="allScoreTable1" placeholder="Enter score" value="1" min="0"></td>
+                <td class="table1">
+                  <select name="color4">
+                    <option value="Red">Red</option>
+                    <option value="Green">Green</option>
+                    <option value="Blue">Blue</option>
+                    <option value="Yellow" selected>Yellow</option>
+                    <option value="Orange">Orange</option>
+                    <option value="Purple">Purple</option>
+                    <option value="Cyan">Cyan</option>
+                  </select>
+                </td>
+              </tr>
+              
+            </thead>
+          </table>
+          
+          <h1>Score Value Customization</h1>
+          <li>You can select specific scores for below options according to your preferences.</li>
+          <li>Note: Scores must be between 0 and 10.</li>
+          <table>
+            <thead>
+              <tr>
+                <th>Options</th>
+                <th>Score</th>
+              </tr>
+              <tr>
+                <td>If Score</td>
+                <td class="table1"><input type="number" name="ifScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>Else Score</td>
+                <td class="table1"><input type="number" name="elseScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>While Score</td>
+                <td class="table1"><input type="number" name="whileScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>Do-While Score</td>
+                <td class="table1"><input type="number" name="do-whileScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>For Score</td>
+                <td class="table1"><input type="number" name="forScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>Switch Score</td>
+                <td class="table1"><input type="number" name="switchScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>Case Score</td>
+                <td class="table1"><input type="number" name="caseScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>AND Score</td>
+                <td class="table1"><input type="number" name="andScore" class="allScoreTable2" min="0" max="10" value="0"></td>
+              </tr>
+              <tr>
+                <td>OR Score</td>
+                <td class="table1"><input type="number" name="orScore" class="allScoreTable2" min="0" max="10" value="0"></td>
+              </tr>
+              <tr>
+                <td>Operators (AND, OR) Score</td>
+                <td class="table1"><input type="number" name="operatorScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>Loop Nesting Score</td>
+                <td class="table1"><input type="number" name="loopNestingScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>Condition Nesting Score</td>
+                <td class="table1"><input type="number" name="conditionNestingScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>For with following another For Score</td>
+                <td class="table1"><input type="number" name="forFollowingForScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>For with following If Score</td>
+                <td class="table1"><input type="number" name="forFollowingIfScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>If with following another If Score</td>
+                <td class="table1"><input type="number" name="ifFollowingIfScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              <tr>
+                <td>If with following For Score</td>
+                <td class="table1"><input type="number" name="ifFollowingForScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+              </tr>
+              
+            </thead>
+          </table>
+          
+          <button id="saveButton">Save</button>
+          <button>Reset</button>
+          
+        </body>
+        
+        <script>
+            document.getElementById("saveButton").addEventListener("click", function() {
+              const overallScoreComplexity = document.querySelectorAll(".allScoreTable1");
+              const scoreValueCustomization = document.querySelectorAll(".allScoreTable2");
+              const overallScoreComplexityList = [];
+              const scoreValueCustomizationList = [];
+              
+              for (let i=0; i<overallScoreComplexity.length; i++){
+                overallScoreComplexityList.push(overallScoreComplexity[i].value);
+              }
+              
+              for (let i=0; i<scoreValueCustomization.length; i++){
+                scoreValueCustomizationList.push(scoreValueCustomization[i].value);
+              }
+              
+              const uniqueScores = new Set(overallScoreComplexityList); // Stores only unique values
+              let emptyScoreFlag = false;
+              let uniqueScoreFlag = false;
+              let invalidValueFlag = false
+              let negativeValueFlag = false;
+              
+              for (let i=0; i<overallScoreComplexityList.length; i++){
+                if (overallScoreComplexityList[i] == ''){
+                  emptyScoreFlag = true;
+                  break;
+                }
+                if (parseInt(overallScoreComplexityList[i]) < 0){
+                  negativeValueFlag = true;
+                  break;
+                }
+              }
+              
+              for (let i=0; i<scoreValueCustomizationList.length; i++){
+                if (parseInt(scoreValueCustomizationList[i]) > 10) {
+                  invalidValueFlag = true;
+                  break;
+                }
+                if (parseInt(scoreValueCustomizationList[i]) < 0){
+                  negativeValueFlag = true;
+                  break;
+                }
+              }
+              
+              if(uniqueScores.size != overallScoreComplexityList.length){
+                uniqueScoreFlag = true;
+              }
+              
+              // Notifications:
+              const notification = document.getElementById("notification");
+              
+              if (invalidValueFlag) {
+                notification.innerHTML = "The options scores cannot be bigger than 10. Please check again.";
+              }
+              else if (negativeValueFlag) {
+                notification.innerHTML = "The scores cannot be negative. Please check again.";
+              }
+              else if (uniqueScoreFlag && emptyScoreFlag){
+                notification.innerHTML = "The overall score values must be unique and cannot be empty. Please check the values again.";
+              }
+              else if (uniqueScoreFlag){
+                notification.innerHTML = "The overall score values must be unique. Please check the values again.";
+              }
+              else if (emptyScoreFlag){
+                notification.innerHTML = "The overall score values cannot be empty. Please check the values again.";
+              }
+              else{
+                return;
+              }
+              
+              notification.style.display = "block";
+              
+              setTimeout(function() { //Time is set for the alert message
+                notification.style.display = "none";
+              }, 5000);
+              
+            });
+        </script>
+        </html>`
+    }
+
+    //-------------------------------------------------------------------------------------------------
+    
     context.subscriptions.push(disposable2);
 	  context.subscriptions.push(highlightLineCommand);
     context.subscriptions.push(getTotalComplexityFile);
     context.subscriptions.push(toggleHighlighting);
+    context.subscriptions.push(openMenu);
   }
 
 // This method is called when your extension is deactivated
