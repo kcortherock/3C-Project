@@ -5,12 +5,7 @@ import re
 from preprocesser_C_code import *
 import read_score_values
 
-
-
-def calculate_cognitive_complexity(code):
-    """Main function to compute the cognitive complexity of a C code."""
-
-    class CognitiveComplexityVisitor(c_ast.NodeVisitor):
+class CognitiveComplexityVisitor(c_ast.NodeVisitor):
         def __init__(self):
             self.current_level = 0#Tracking current nesting level
             self.OperatorList = ["&&","||"]#Logical operators that increase complexity
@@ -32,12 +27,14 @@ def calculate_cognitive_complexity(code):
                
         def loop_nestingLevel_dec(self):
             """handle decrement nesting level for loops"""
-            self.previous_nestingType.pop()
+            if len(self.previous_nestingType) != 0:
+                self.previous_nestingType.pop()
             self.current_level = self.current_level - self.complexity_values["loop_nesting"]
         
         def cond_nestingLevel_dec(self):
             """handle decrement nesting level for conditional statements"""
-            self.previous_nestingType.pop()
+            if len(self.previous_nestingType) != 0:
+                self.previous_nestingType.pop()
             self.current_level = self.current_level - self.complexity_values["cond_nesting"]   
 
 
@@ -141,7 +138,7 @@ def calculate_cognitive_complexity(code):
         def _increment_line_complexity(self, line, value):
             """Helper function to set the complexity of a line."""
             if line in self.line_complexities:
-                self.line_complexities[line] = value
+                self.line_complexities[line] += value
             else:
                 self.line_complexities[line] = value
         def calculate_Logical_Expression(self):
@@ -155,7 +152,7 @@ def calculate_cognitive_complexity(code):
             keys = self.line_operators.keys()
             for key in keys:
                 totalAndCount = len([x for x in self.line_operators[key] if x == '&&'])
-                self._increment_line_complexity(key,self.line_complexities[key] + totalAndCount * self.complexity_values["and_score"])
+                self._increment_line_complexity(key, totalAndCount * self.complexity_values["and_score"])
                 
 
         def count_OR(self):
@@ -163,7 +160,7 @@ def calculate_cognitive_complexity(code):
             keys = self.line_operators.keys()
             for key in keys:
                 totalOrCount = len([x for x in self.line_operators[key] if x == '||'])
-                self._increment_line_complexity(key,self.line_complexities[key] + totalOrCount * self.complexity_values["or_score"])   
+                self._increment_line_complexity(key, totalOrCount * self.complexity_values["or_score"])   
 
         def count_changes(self):
             """Comparing the logical with its subsequent one to calculate the changes."""
@@ -173,9 +170,11 @@ def calculate_cognitive_complexity(code):
                 for i in range(0,len(self.line_operators[key]) - 1):
                     if self.line_operators[key][i] != self.line_operators[key][i+1]:
                             changes = changes + 1
-                self._increment_line_complexity(key,self.line_complexities[key] + (changes * self.complexity_values["opchange_score"]) + self.complexity_values["binaryop_score"]) 
+                self._increment_line_complexity(key,(changes * self.complexity_values["opchange_score"]) + self.complexity_values["binaryop_score"]) 
 
 
+def calculate_cognitive_complexity(code):
+    """Main function to compute the cognitive complexity of a C code."""
     parser = c_parser.CParser()
     ast = parser.parse(code)  # ast stands for abstract syntax tree, our structure of choice for parsing the code.
     visitor = CognitiveComplexityVisitor()
