@@ -19,8 +19,10 @@ def read_or_create_score_file(filename="ScoreValuesFile.txt"):
         "cond_nesting": 1,
         "switch_score": 1,
         "case_score": 1,
-        "prev_cond": 1,
-        "prev_loop": 1
+        "for_following_for": 0,
+        "for_following_if": 0,
+        "if_following_if": 0,
+        "if_following_for": 0
     }
     scores = {}
 

@@ -1,0 +1,14 @@
+{
+  "scoreThresholds": [
+    8,
+    5,
+    3,
+    1
+  ],
+  "colors": [
+    "Red",
+    "Green",
+    "Blue",
+    "Yellow"
+  ]
+}
