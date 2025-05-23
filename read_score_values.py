@@ -8,21 +8,21 @@ def read_or_create_score_file(filename="ScoreValuesFile.txt"):
     default_scores = {
         "if_score": 1,
         "else_score": 1,
-        "while_score": 1,
-        "dowhile_score": 1,
-        "for_score": 1,
+        "while_score": 4,
+        "dowhile_score": 4,
+        "for_score": 4,
         "binaryop_score": 1,
-        "and_score": 0,
-        "or_score": 0,
+        "and_score": 1,
+        "or_score": 1,
         "opchange_score": 1,
-        "loop_nesting": 1,
+        "loop_nesting": 2,
         "cond_nesting": 1,
         "switch_score": 1,
         "case_score": 1,
-        "for_following_for": 0,
-        "for_following_if": 0,
-        "if_following_if": 0,
-        "if_following_for": 0
+        "for_following_for": 2,
+        "for_following_if": 1,
+        "if_following_if": 1,
+        "if_following_for": 2
     }
     scores = {}
 
