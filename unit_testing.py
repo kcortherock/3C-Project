@@ -13,7 +13,8 @@ class TestCognitiveComplexityVisitor(unittest.TestCase):
 
     def test_logical_operators_change(self):
         code = """int main() {  
-        if (a && b || c) 
+        if (1 && 1 || 1) 
+        {}
         return 0; 
         }"""
         line_complexities = calculate_cognitive_complexity(code)
@@ -21,7 +22,8 @@ class TestCognitiveComplexityVisitor(unittest.TestCase):
 
     def test_logical_operators_OR(self):
         code = """int main() {  
-        if (a || b || c) 
+        if (1 || 0 || 1) 
+        {}
         return 0; 
         }"""
         line_complexities = calculate_cognitive_complexity(code)
@@ -29,7 +31,7 @@ class TestCognitiveComplexityVisitor(unittest.TestCase):
     
     def test_logical_operators_AND(self):
         code = """int main() {  
-        if (a && b && c) 
+        if (1 && 1 && 1){}
         return 0; 
         }"""
         line_complexities = calculate_cognitive_complexity(code)
@@ -136,7 +138,7 @@ class TestCognitiveComplexityVisitor(unittest.TestCase):
             }
                 """
         line_complexities = calculate_cognitive_complexity(code) 
-        self.assertEqual((line_complexities[2]), 1) 
+        self.assertEqual((line_complexities[3]), 2) 
 
     def test_doWhile(self):
         code = """int main() {  

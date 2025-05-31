@@ -61,7 +61,6 @@ class CognitiveComplexityVisitor(c_ast.NodeVisitor):
 
         def visit_If(self, node):
             """Visit if nodes to increment complexity for if,else if and else."""
-
             # Increment complexity for 'if'
             self._increase_complexity(node, "if_score")
 
@@ -80,7 +79,6 @@ class CognitiveComplexityVisitor(c_ast.NodeVisitor):
                 if isinstance(node.iffalse, c_ast.If):
                     self.cond_nestingLevel_dec()
                     # It's an 'else if' construct
-                    self._increase_complexity(node.iffalse, "if_score")
                     self.cond_nestingLevel_inc()
                     self.visit(node.iffalse)
                     
@@ -184,7 +182,26 @@ def calculate_cognitive_complexity(code):
 
 
 if __name__ == "__main__":
-    code = sys.stdin.read()
+    code = """
+            int main() { 
+            if(1){
+                
+            }
+            else if(1){
+                if(1){}
+                else if(1){
+                if(1){}
+                else if(1){
+                }
+                }
+            }
+            else{
+
+            }
+
+            return 0; 
+            }
+            """
     code = remove_preprocessor_directives(code)
     
     if not code.strip():
