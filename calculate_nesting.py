@@ -24,36 +24,48 @@ def calculate_cognitive_complexity(code):
             """handle increment nesting level for loops"""
             if(self.previous_nestingType[-1] == "prev_loop"):
                 self.current_level = self.current_level + self.complexity_values["for_following_for"]     #loop loop
-            else:
+            elif(self.previous_nestingType[-1] == "prev_cond"):
                 self.current_level = self.current_level + self.complexity_values["for_following_if"]     #loop if
+            else:
+                self.current_level = self.current_level + self.complexity_values["loop_nesting"]  
             self.previous_nestingType.append("prev_loop")
         
         def cond_nestingLevel_inc(self):
             """handle increment nesting level for conditional statements"""
             if(self.previous_nestingType[-1] == "prev_cond"):
                 self.current_level = self.current_level + self.complexity_values["if_following_if"]      #if if
-            else:
+            elif(self.previous_nestingType[-1] == "prev_loop"):
                 self.current_level = self.current_level + self.complexity_values["if_following_for"]      #if loop
+            else:
+                self.current_level = self.current_level + self.complexity_values["cond_nesting"]      #if loop
+           
             self.previous_nestingType.append("prev_cond")
                
         def loop_nestingLevel_dec(self):
             """handle decrement nesting level for loops"""
-            self.previous_nestingType.pop()
+            if(self.previous_nestingType[-1] != "Nothing"):
+                self.previous_nestingType.pop()
 
             if (self.previous_nestingType[-1] == "prev_loop"):
                 self.current_level = self.current_level - self.complexity_values["for_following_for"]  # loop loop
-            else:
+            elif(self.previous_nestingType[-1] == "prev_cond"):
                 self.current_level = self.current_level - self.complexity_values["for_following_if"]  # loop if
+            else:
+                self.current_level = self.current_level - self.complexity_values["loop_nesting"] 
 
         
         def cond_nestingLevel_dec(self):
             """handle decrement nesting level for conditional statements"""
-            self.previous_nestingType.pop()
+            if(self.previous_nestingType[-1] != "Nothing"):
+                self.previous_nestingType.pop()
 
             if (self.previous_nestingType[-1] == "prev_cond"):
                 self.current_level = self.current_level - self.complexity_values["if_following_if"]  # if if
+            elif(self.previous_nestingType[-1] == "prev_loop"):
+                self.current_level = self.current_level - self.complexity_values["if_following_for"] # for if
             else:
-                self.current_level = self.current_level - self.complexity_values["if_following_for"]
+                self.current_level = self.current_level - self.complexity_values["cond_nesting"] 
+
 
 
 
@@ -99,7 +111,6 @@ def calculate_cognitive_complexity(code):
                 if isinstance(node.iffalse, c_ast.If):
                     self.cond_nestingLevel_dec()
                     # It's an 'else if' construct
-                    self._increase_complexity(node.iffalse, "if_score")
                     self.cond_nestingLevel_inc()
                     self.visit(node.iffalse)
                     
