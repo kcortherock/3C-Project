@@ -25,9 +25,8 @@ def calculate_cognitive_complexity(code):
             if(self.previous_nestingType[-1] == "prev_loop"):
                 self.current_level = self.current_level + self.complexity_values["for_following_for"]     #loop loop
             elif(self.previous_nestingType[-1] == "prev_cond"):
-                self.current_level = self.current_level + self.complexity_values["for_following_if"]     #loop if
-            else:
-                self.current_level = self.current_level + self.complexity_values["loop_nesting"]  
+                self.current_level = self.current_level + self.complexity_values["if_following_for"]     #loop if
+            
             self.previous_nestingType.append("prev_loop")
         
         def cond_nestingLevel_inc(self):
@@ -35,10 +34,8 @@ def calculate_cognitive_complexity(code):
             if(self.previous_nestingType[-1] == "prev_cond"):
                 self.current_level = self.current_level + self.complexity_values["if_following_if"]      #if if
             elif(self.previous_nestingType[-1] == "prev_loop"):
-                self.current_level = self.current_level + self.complexity_values["if_following_for"]      #if loop
-            else:
-                self.current_level = self.current_level + self.complexity_values["cond_nesting"]      #if loop
-           
+                self.current_level = self.current_level + self.complexity_values["for_following_if"]      #if loop
+            
             self.previous_nestingType.append("prev_cond")
                
         def loop_nestingLevel_dec(self):
@@ -49,9 +46,8 @@ def calculate_cognitive_complexity(code):
             if (self.previous_nestingType[-1] == "prev_loop"):
                 self.current_level = self.current_level - self.complexity_values["for_following_for"]  # loop loop
             elif(self.previous_nestingType[-1] == "prev_cond"):
-                self.current_level = self.current_level - self.complexity_values["for_following_if"]  # loop if
-            else:
-                self.current_level = self.current_level - self.complexity_values["loop_nesting"] 
+                self.current_level = self.current_level - self.complexity_values["if_following_for"]  # loop if
+            
 
         
         def cond_nestingLevel_dec(self):
@@ -62,9 +58,8 @@ def calculate_cognitive_complexity(code):
             if (self.previous_nestingType[-1] == "prev_cond"):
                 self.current_level = self.current_level - self.complexity_values["if_following_if"]  # if if
             elif(self.previous_nestingType[-1] == "prev_loop"):
-                self.current_level = self.current_level - self.complexity_values["if_following_for"] # for if
-            else:
-                self.current_level = self.current_level - self.complexity_values["cond_nesting"] 
+                self.current_level = self.current_level - self.complexity_values["for_following_if"] # for if
+         
 
 
 
@@ -93,17 +88,17 @@ def calculate_cognitive_complexity(code):
         def visit_If(self, node):
             """Visit if nodes to increment complexity for if,else if and else."""
 
-            # Increment complexity for 'if'
-            self._increase_complexity(node, "if_score")
+            
 
             # Visit the condition
-            
             self.visit(node.cond)
             
 
             # Handle the true branch (`iftrue`)
             if node.iftrue:
                 self.cond_nestingLevel_inc()
+                # Increment complexity for 'if'
+                self._increase_complexity(node, "if_score")
                 self.visit(node.iftrue)
                 self.cond_nestingLevel_dec()
             # Handle the false branch (`iffalse`)
@@ -125,22 +120,25 @@ def calculate_cognitive_complexity(code):
 
         def visit_For(self, node):
             """Visit nodes to increment complexity regarding for loops."""
-            self._increase_complexity(node, "for_score")
+            
             self.loop_nestingLevel_inc()
+            self._increase_complexity(node, "for_score")
             self.generic_visit(node)
             self.loop_nestingLevel_dec()
 
         def visit_While(self, node):
             """Visit nodes to increment complexity regarding while loops."""
-            self._increase_complexity(node, "while_score")
+            
             self.loop_nestingLevel_inc()
+            self._increase_complexity(node, "while_score")
             self.generic_visit(node)
             self.loop_nestingLevel_dec()
 
         def visit_DoWhile(self, node):
             """Visit nodes to increment complexity regarding do-while loops."""
-            self._increase_complexity(node, "dowhile_score")
+            
             self.loop_nestingLevel_inc()
+            self._increase_complexity(node, "dowhile_score")
             self.generic_visit(node)
             self.loop_nestingLevel_dec()
 
