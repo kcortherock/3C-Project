@@ -10,6 +10,7 @@ let complexityLevels = {}; // Store the current cognitive complexity score of ea
 
 // Default configuration
 const defaultScoreThresholds = [8, 5, 3, 1];
+const defaultOptionScores = [1, 1, 4, 4, 4, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 2];
 const defaultColors = [
   'rgba(255, 0, 0, 0.3)',   // Red
   'rgba(0, 255, 0, 0.3)',   // Green
@@ -26,6 +27,16 @@ const colorMapping = {
   'Orange': 'rgba(255, 165, 0, 0.3)',
   'Purple': 'rgba(128, 0, 128, 0.3)',
   'Cyan': 'rgba(0, 255, 255, 0.3)'
+};
+
+const reverseColorMapping = {
+  'rgba(255, 0, 0, 0.3)': 'Red',
+  'rgba(0, 255, 0, 0.3)': 'Green',
+  'rgba(0, 0, 255, 0.3)': 'Blue',
+  'rgba(255, 255, 0, 0.3)': 'Yellow',
+  'rgba(255, 165, 0, 0.3)': 'Orange',
+  'rgba(128, 0, 128, 0.3)': 'Purple',
+  'rgba(0, 255, 255, 0.3)': 'Cyan'
 };
 
 let scoreThresholds = [...defaultScoreThresholds];
@@ -46,7 +57,7 @@ if (fs.existsSync(settingsFilePath)) {
       decorationColors = settings.colors.map(color => colorMapping[color] || defaultColors[0]);
     }
   } catch (err) {
-    vscode.window.showErrorMessage('Failed to read settings.json. Using default settings.');
+    vscode.window.showErrorMessage('Failed to read colors.json. Using default settings.');
   }
 }
 
@@ -277,8 +288,6 @@ function activate(context) {
       return fs.readFileSync(htmlPath, 'utf8');
     }
 
-    panel.webview.html = getWebviewContent();
-
     // Handle messages from the webview
     panel.webview.onDidReceiveMessage(
       message => {
@@ -331,14 +340,131 @@ function activate(context) {
           } catch (err) {
             vscode.window.showErrorMessage(`Failed to save settings: ${err.message}`);
             console.error(err);
+          }}
+        else if (message.command === 'getColours') {
+          try {
+            // Try to read from colors.json first
+            if (fs.existsSync(settingsFilePath)) {
+              const fileContent = fs.readFileSync(settingsFilePath, 'utf8');
+              const settings = JSON.parse(fileContent);
+              
+              if (settings.scoreThresholds && settings.colors) {
+                const colours = {
+                  score1: settings.scoreThresholds[0]?.toString() || '8',
+                  color1: settings.colors[0] || 'Red',
+                  score2: settings.scoreThresholds[1]?.toString() || '5', 
+                  color2: settings.colors[1] || 'Green',
+                  score3: settings.scoreThresholds[2]?.toString() || '3',
+                  color3: settings.colors[2] || 'Blue', 
+                  score4: settings.scoreThresholds[3]?.toString() || '1',
+                  color4: settings.colors[3] || 'Yellow'
+                };
+                panel.webview.postMessage({ command: 'sendColours', colours: colours });
+                return;
+              }
+            }
+            
+            
+            
+            // Final fallback to defaults
+            console.warn('No color files found, using defaults');
+            const colours = {
+              score1: '8',
+              color1: 'Red',
+              score2: '5', 
+              color2: 'Green',
+              score3: '3',
+              color3: 'Blue', 
+              score4: '1',
+              color4: 'Yellow'
+            };
+            panel.webview.postMessage({ command: 'sendColours', colours: colours });
+            
+          } catch (err) {
+            console.error('Error reading color settings:', err);
+            vscode.window.showErrorMessage('Failed to load color settings');
           }
-        } else if (message === 'error') {
+        }
+        else if (message.command === 'getScores') {
+  try {
+    const filePath = path.join(context.extensionPath, 'ScoreValuesFile.txt');
+    
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      console.warn('ScoreValuesFile.txt not found, using defaults');
+      // Send default scores with HTML form naming
+      const scores = {
+        'ifScore': '1',
+        'elseScore': '1', 
+        'whileScore': '4',
+        'dowhileScore': '4',
+        'forScore': '4',
+        'binaryopScore': '1',
+        'andScore': '1',
+        'orScore': '1',
+        'opchangeScore': '1',
+        'loopNesting': '2',
+        'condNesting': '1',
+        'switchScore': '1',
+        'caseScore': '1',
+        'forFollowingFor': '2',
+        'forFollowingIf': '1',
+        'ifFollowingIf': '1',
+        'ifFollowingFor': '2'
+      };
+      panel.webview.postMessage({ command: 'sendScores', scores: scores });
+      return;
+    }
+    
+    const content = fs.readFileSync(filePath, 'utf8');
+    const fileScores = {};
+
+    // First read the file with underscore naming
+    content.split('\n').forEach(line => {
+      if (line.trim()) {
+        const [key, value] = line.trim().split(';');
+        if (key && value) {
+          fileScores[key] = value;
+        }
+      }
+    });
+
+    // Convert underscore naming to camelCase for HTML form
+    const scores = {
+      'ifScore': fileScores['if_score'] || '2',
+      'elseScore': fileScores['else_score'] || '1', 
+      'whileScore': fileScores['while_score'] || '4',
+      'dowhileScore': fileScores['dowhile_score'] || '4',
+      'forScore': fileScores['for_score'] || '4',
+      'binaryopScore': fileScores['binaryop_score'] || '1',
+      'andScore': fileScores['and_score'] || '1',
+      'orScore': fileScores['or_score'] || '1',
+      'opchangeScore': fileScores['opchange_score'] || '1',
+      'loopNesting': fileScores['loop_nesting'] || '2',
+      'condNesting': fileScores['cond_nesting'] || '1',
+      'switchScore': fileScores['switch_score'] || '1',
+      'caseScore': fileScores['case_score'] || '1',
+      'forFollowingFor': fileScores['for_following_for'] || '2',
+      'forFollowingIf': fileScores['for_following_if'] || '1',
+      'ifFollowingIf': fileScores['if_following_if'] || '1',
+      'ifFollowingFor': fileScores['if_following_for'] || '2'
+    };
+
+    panel.webview.postMessage({ command: 'sendScores', scores: scores });
+  } catch (err) {
+    console.error('Error reading ScoreValuesFile.txt:', err);
+    vscode.window.showErrorMessage('Failed to load score settings');
+  }
+}
+        else if (message === 'error') {
           vscode.window.showErrorMessage("Form submission error: Check the input values.");
         }
       },
       undefined,
       context.subscriptions
     );
+    
+    panel.webview.html = getWebviewContent(); 
   });
 
   context.subscriptions.push(disposable2);

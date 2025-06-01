@@ -120,15 +120,15 @@
       </tr>
       <tr>
         <td>Do-While Score</td>
-        <td class="table1"><input type="number" name="do-whileScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+        <td class="table1"><input type="number" name="dowhileScore" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
       <tr>
         <td>For Score</td>
         <td class="table1"><input type="number" name="forScore" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
        <tr>
-        <td>Logic Sequence</td>
-        <td class="table1"><input type="number" name="forScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+        <td>Binary Op Score</td>
+        <td class="table1"><input type="number" name="binaryopScore" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
       <tr>
         <td>Switch Score</td>
@@ -140,39 +140,39 @@
       </tr>
       <tr>
         <td>AND Score</td>
-        <td class="table1"><input type="number" name="andScore" class="allScoreTable2" min="0" max="10" value="0"></td>
+        <td class="table1"><input type="number" name="andScore" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
       <tr>
         <td>OR Score</td>
-        <td class="table1"><input type="number" name="orScore" class="allScoreTable2" min="0" max="10" value="0"></td>
+        <td class="table1"><input type="number" name="orScore" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
       <tr>
-        <td>Operators (AND, OR) Score</td>
-        <td class="table1"><input type="number" name="operatorScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+        <td>Op Change Score</td>
+        <td class="table1"><input type="number" name="opchangeScore" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
       <tr>
         <td>Loop Nesting Score</td>
-        <td class="table1"><input type="number" name="loopNestingScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+        <td class="table1"><input type="number" name="loopNesting" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
       <tr>
         <td>Condition Nesting Score</td>
-        <td class="table1"><input type="number" name="conditionNestingScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+        <td class="table1"><input type="number" name="condNesting" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
       <tr>
         <td>For with following another For Score</td>
-        <td class="table1"><input type="number" name="forFollowingForScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+        <td class="table1"><input type="number" name="forFollowingFor" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
       <tr>
         <td>For with following If Score</td>
-        <td class="table1"><input type="number" name="forFollowingIfScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+        <td class="table1"><input type="number" name="forFollowingIf" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
       <tr>
         <td>If with following another If Score</td>
-        <td class="table1"><input type="number" name="ifFollowingIfScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+        <td class="table1"><input type="number" name="ifFollowingIf" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
       <tr>
         <td>If with following For Score</td>
-        <td class="table1"><input type="number" name="ifFollowingForScore" class="allScoreTable2" min="0" max="10" value="1"></td>
+        <td class="table1"><input type="number" name="ifFollowingFor" class="allScoreTable2" min="0" max="10" value="1"></td>
       </tr>
       
     </thead>
@@ -186,6 +186,71 @@
 <script>
     // Fix: Properly define vscode API for webview context
     const vscode = acquireVsCodeApi();
+
+    function setDefaults() {
+        const overallScoreInputs = document.querySelectorAll(".allScoreTable1");
+        const scoreValueInputs = document.querySelectorAll(".allScoreTable2");
+
+        const defaultScores = ["8", "5", "3", "1"];
+        const defaultOptions = [
+          1, 1, 4, 4, 4,
+          1, 1, 1, 1, 2,
+          1, 1, 1, 2, 1,
+          1, 2
+        ];
+
+        for (let i = 0; i < overallScoreInputs.length; i++) {
+          overallScoreInputs[i].value = defaultScores[i];
+        }
+
+        for (let i = 0; i < scoreValueInputs.length; i++) {
+          scoreValueInputs[i].value = defaultOptions[i];
+        }
+
+        document.querySelector("select[name='color1']").value = "Red";
+        document.querySelector("select[name='color2']").value = "Green";
+        document.querySelector("select[name='color3']").value = "Blue";
+        document.querySelector("select[name='color4']").value = "Yellow";
+    }
+
+    // Call when page loads
+    window.onload = function () {
+        console.log('Page loaded, requesting scores and colors...');
+        vscode.postMessage({ command: 'getScores' }); // Sending getScores to Webview
+        vscode.postMessage({ command: 'getColours' }); // Sending getColours to Webview
+    };
+
+    window.addEventListener('message', event => {
+        const data = event.data;
+        console.log('Received message:', data);
+        
+        if (data.command === 'sendScores') {  // Get scores message from Webview
+            console.log('Processing scores:', data.scores);
+            for (const key in data.scores) {
+                const inputs = document.getElementsByName(key);
+                console.log(`Looking for input with name: ${key}, found: ${inputs.length} elements`);
+                if (inputs.length > 0) {
+                    inputs[0].value = data.scores[key];
+                    console.log(`Set ${key} to ${data.scores[key]}`);
+                } else {
+                    console.warn(`No input found for key: ${key}`);
+                }
+            }
+        }
+        else if (data.command === 'sendColours') {  // Get colours message from Webview
+            console.log('Processing colors:', data.colours);
+            for (const key in data.colours) {
+                const inputs = document.getElementsByName(key);
+                console.log(`Looking for input with name: ${key}, found: ${inputs.length} elements`);
+                if (inputs.length > 0) {
+                    inputs[0].value = data.colours[key];
+                    console.log(`Set ${key} to ${data.colours[key]}`);
+                } else {
+                    console.warn(`No input found for key: ${key}`);
+                }
+            }
+        }
+    });
     
     document.getElementById("saveButton").addEventListener("click", function() {
       const overallScoreComplexity = document.querySelectorAll(".allScoreTable1");
@@ -292,44 +357,7 @@
     
     // Add reset button functionality
     document.getElementById("resetButton").addEventListener("click", function() {
-      const overallScoreInputs = document.querySelectorAll(".allScoreTable1");
-      const scoreValueInputs = document.querySelectorAll(".allScoreTable2");
-      
-      // Reset to default values
-      const defaultScores = ["8", "5", "3", "1"];
-      const defaultOptions = [    1,
-        1,
-        4,
-        4,
-        4,
-        1,
-        1,
-        1,
-        1,
-        2,
-        1,
-        1,
-        1,
-        2,
-        1,
-        1,
-        2]
-      
-      // Reset overall complexity scores
-      for (let i = 0; i < overallScoreInputs.length; i++) {
-        overallScoreInputs[i].value = defaultScores[i];
-      }
-      
-      // Reset option scores
-      for (let i = 0; i < scoreValueInputs.length; i++) {
-        scoreValueInputs[i].value = defaultOptions[i];
-      }
-      
-      // Reset color selects
-      document.querySelector("select[name='color1']").value = "Red";
-      document.querySelector("select[name='color2']").value = "Green";
-      document.querySelector("select[name='color3']").value = "Blue";
-      document.querySelector("select[name='color4']").value = "Yellow";
+      setDefaults();
       
       // Show notification
       const notification = document.getElementById("notification");
